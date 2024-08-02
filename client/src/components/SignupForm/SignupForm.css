@@ -1,0 +1,18 @@
+form {
+  display: block;
+  padding: 2rem;
+  text-align: center;
+}
+input {
+  padding: 1rem 1rem 0 1rem;
+  /* margin: 0 0 2rem 2rem; */
+  width: 20rem;
+}
+
+fieldset {
+  border-radius: 0.5rem;
+  border: 1px solid rgb(20, 207, 20);
+}
+legend {
+  text-align: start;
+}
