@@ -1,7 +1,13 @@
-import express, { type Response, type Request } from "express";
+import express, { type Response, type Request, type NextFunction, type Application } from "express";
+const bodyParser = require('body-parser');
+const jwt = require('jsonwebtoken');
 const mysql = require("mysql2")
+import dotenv from 'dotenv';
 
-const app = express();
+dotenv.config();
+const app:Application = express();
+app.use(bodyParser.json());
+
 const conn = mysql.createConnection({
     host: "localhost",
     user: "juan",
@@ -9,6 +15,18 @@ const conn = mysql.createConnection({
     database: "commerce_store"
 });
 
+//token auth
+const SECRET_KEY = process.env.SECRET_KEY;
+const authentication = (req:Request, res:Response, next:NextFunction)=>{
+    const authHeader = req.headers['authorization'];
+    const authToken = authHeader && authHeader.split(" ")[1];
+    if (!authToken) res.sendStatus(401);
+    jwt.verify(authToken, SECRET_KEY, (err: Error, user: any) => {
+        if (err) res.sendStatus(401);
+        req.user = user;
+        next();
+})
+}
 //users APIs
 app.get("/user", (req: Request, res: Response) => {
     const { username } = req.body;
