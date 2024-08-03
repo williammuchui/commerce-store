@@ -194,7 +194,7 @@ app.delete("/user/payments/delete/:id", (req: Request, res: Response) => {
 });
 
 //Product details APIs
-app.get("/products", (req: Request, res: Response) => {
+app.get("/products",authentication, (req: Request, res: Response) => {
     const query = `select id, title, price, description, category_id, image_url from products`;
     conn.query(query, (err: Error, result: any) => {
         if (err) throw err;
@@ -202,7 +202,7 @@ app.get("/products", (req: Request, res: Response) => {
     });
 });
 
-app.get("/product/:id", (req: Request, res: Response) => {
+app.get("/product/:id",authentication, (req: Request, res: Response) => {
     const { id } = req.params;
     const query = `select * from products where id = ?`;
     conn.query(query, (err: Error, result: any) => {
@@ -211,7 +211,7 @@ app.get("/product/:id", (req: Request, res: Response) => {
     });
 });
 
-app.post("/products/new", (req: Request, res: Response) => {
+app.post("/products/new",authentication, (req: Request, res: Response) => {
     const { title, price, description, image_url, category_id } = req.body;
     const query = `insert into products (title, price, description, image_url, category_id) values(?,?,?,?,?)`;
     conn.query(query, [title, price, description, image_url, category_id], (err: Error, result: any) => {
