@@ -1,7 +1,9 @@
+import axios from "axios";
 import "./LoginForm.css";
 import { FormEvent, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { Fragment } from "react/jsx-runtime";
+import bcrypt from "bcrypt";
 
 export default function LoginForm() {
     type User = {
@@ -13,6 +15,11 @@ export default function LoginForm() {
         username: "",
         password: "",
     });
+    const [error, setError] = useState<string>("");
+
+    const [passwordHash, setPasswordHash] = useState<string>("");
+
+    const [token, setToken] = useState<string>("");
 
     const HandleFormSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -25,13 +32,42 @@ export default function LoginForm() {
             username,
             password
         }));
+
+        axios.get("/user/password", {
+            params: {
+                username: data.username,
+            }
+        }).then(
+            response => setPasswordHash(response.data)
+        ).catch(err => console.log(err))
+
+        const passwordIsValid: boolean = passwordHash === bcrypt.hashSync(data.password, 10);
+        if (passwordIsValid) {
+            <Navigate to="/home" />
+            axios.post("/user/generate-token", {
+                username: data.username,
+            },{
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            }).then(
+                response => {
+                    setToken(response.data);
+                    localStorage.set("token", token);
+                }
+            ).catch(err => console.log(err))
+
+        } else {
+            setError("Invalid username or Password!")            
+        }
     }
-        if(data.username !== "")console.log(data);
+
     return (
         <Fragment>
             <form onSubmit={HandleFormSubmit}>
                 <fieldset>
                     <legend>Log In</legend>
+                    <span>{error}</span><br/>
                     <label htmlFor="username" >Username: </label>
                     <input name="username" autoComplete="true" id="username" defaultValue={data.username} type="text" maxLength={50} /><br/>
                     <label htmlFor="password">Password: </label>

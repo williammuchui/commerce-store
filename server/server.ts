@@ -46,14 +46,21 @@ app.get("/user/:id", (req: Request, res: Response) => {
     });
 });
 
-app.get("/user/password", (req: Request, res: Response) => {
-    const { username } = req.body;
+app.get("/user/password/:username", (req: Request, res: Response) => {
+    const { username } = req.params;
     const query = `SELECT password FROM users WHERE username = ?`;
     conn.query(query, [username], (err: Error, result: any) => {
         if (err) throw err;
         res.status(200).json(result);
     });
 });
+
+app.post("/user/generate-token", (req: Request, res: Response) => {
+    const { username } = req.body;
+    const payload = { username: username };
+    const token = jwt.sign(payload, SECRET_KEY, {expiresIn: "1hr"});
+    res.status(200).json(token);
+})
 
 app.post("/user/new", (req: Request, res: Response) => {
     const { username, email, password } = req.body;
